@@ -1,29 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <pthread.h>
-
-
-typedef struct {
-    int* buffer;        // the buffer array
-    size_t head;        // index of the first element
-    size_t tail;        // index where next element will be inserted
-    size_t capacity;    // max number of elements that can be stored
-    size_t size;        // current number of elements in the buffer
-    pthread_mutex_t mutex;
-    pthread_cond_t not_full;
-    pthread_cond_t not_empty;
-} CircularBuffer;
-
-
-bool cb_is_full(const CircularBuffer* cb);
-bool cb_is_empty(const CircularBuffer* cb);
-void cb_free(CircularBuffer* cb);
-CircularBuffer* cb_init(size_t capacity);
-bool cb_push(CircularBuffer* cb, int item);
-bool cb_pop(CircularBuffer* cb, int* value);
-
+#include "circular_buffer.h"
 
 CircularBuffer* cb_init(size_t capacity) {
     if (capacity == 0) {
@@ -43,7 +18,7 @@ CircularBuffer* cb_init(size_t capacity) {
     }
 
     // init synchronization primitives
-    if (pthread_mutex_init(&buff->mutex) != 0) {
+    if (pthread_mutex_init(&buff->mutex, NULL) != 0) {
         free(buff->buffer);
         free(buff);
         return NULL;
@@ -154,7 +129,6 @@ void cb_free(CircularBuffer* cb) {
 }
 
 
-
 // test the implementation
 int main() {
     CircularBuffer* cb = cb_init(3);
@@ -190,6 +164,7 @@ int main() {
 
     cb_free(cb);
     printf("All tests passed!\n");
+
     return 0;
 }
 
