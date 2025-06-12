@@ -31,13 +31,13 @@ CircularBuffer* cb_init(size_t capacity) {
     }
     CircularBuffer* buff = malloc(sizeof(CircularBuffer));
     if (buff == NULL) {
-        perror("Failed to allocate memory for the struct object");
+        fprintf(stderr, "Failed to allocate memory for the struct object\n");
         return NULL;
     }
 
     buff->buffer = malloc(sizeof(int) * capacity);
     if (buff->buffer == NULL) {
-        perror("Failed to allocate memory for the buffer");
+        fprintf(stderr, "Failed to allocate memory for the buffer\n");
         free(buff);
         return NULL;
     }
@@ -69,7 +69,7 @@ CircularBuffer* cb_init(size_t capacity) {
 bool cb_push(CircularBuffer* cb, int item) {
     // check if it is full
     if (cb_is_full(cb)) {
-        perror("The buffer is full!");
+        fprintf(stderr, "The buffer is full!\n");
         return false;
     }
 
@@ -99,7 +99,7 @@ bool cb_push(CircularBuffer* cb, int item) {
 bool cb_pop(CircularBuffer* cb, int* value) {
     // check if buffer is empty
     if (cb_is_empty(cb)) {
-        perror("The buffer is empty!");
+        fprintf(stderr, "The buffer is empty!\n");
         return false;
     }
 
