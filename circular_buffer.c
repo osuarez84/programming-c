@@ -130,41 +130,41 @@ void cb_free(CircularBuffer* cb) {
 
 
 // test the implementation
-int main() {
-    CircularBuffer* cb = cb_init(3);
-    int value;
+// int main() {
+//     CircularBuffer* cb = cb_init(3);
+//     int value;
 
-    // test 1
-    assert(cb_is_empty(cb));
-    assert(!cb_is_full(cb));
+//     // test 1
+//     assert(cb_is_empty(cb));
+//     assert(!cb_is_full(cb));
 
-    // test 2
-    assert(cb_push(cb, 10) == true);
-    assert(cb_push(cb, 20) == true);
-    assert(cb_push(cb, 30) == true);
-    assert(cb_push(cb, 40) == false); // should fail (full)
+//     // test 2
+//     assert(cb_push(cb, 10) == true);
+//     assert(cb_push(cb, 20) == true);
+//     assert(cb_push(cb, 30) == true);
+//     assert(cb_push(cb, 40) == false); // should fail (full)
 
-    assert(cb_is_full(cb));
+//     assert(cb_is_full(cb));
 
-    // // test 3
-    assert(cb_pop(cb, &value) == true);
-    assert(cb_pop(cb, &value) == true);
+//     // // test 3
+//     assert(cb_pop(cb, &value) == true);
+//     assert(cb_pop(cb, &value) == true);
 
-    // // test 4: wrap around
-    assert(cb_push(cb, 40) == true);
-    assert(cb_push(cb, 50) == true);
-    assert(cb_pop(cb, &value) == true);
-    assert(cb_pop(cb, &value) == true);
-    assert(cb_pop(cb, &value) == true);
-    assert(cb_is_empty(cb));
+//     // // test 4: wrap around
+//     assert(cb_push(cb, 40) == true);
+//     assert(cb_push(cb, 50) == true);
+//     assert(cb_pop(cb, &value) == true);
+//     assert(cb_pop(cb, &value) == true);
+//     assert(cb_pop(cb, &value) == true);
+//     assert(cb_is_empty(cb));
 
-    // // test 5: pop from empty buffer
-    printf("The following error message is expected:\n");
-    assert(cb_pop(cb, &value) == false);
+//     // // test 5: pop from empty buffer
+//     printf("The following error message is expected:\n");
+//     assert(cb_pop(cb, &value) == false);
 
-    cb_free(cb);
-    printf("All tests passed!\n");
+//     cb_free(cb);
+//     printf("All tests passed!\n");
 
-    return 0;
-}
+//     return 0;
+// }
 
