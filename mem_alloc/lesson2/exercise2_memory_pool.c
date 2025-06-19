@@ -28,10 +28,33 @@ static block_header_t* free_list = NULL;  // Head of the free list
 bool init_memory_pool() {
     // TODO: Use mmap() to allocate a memory pool of POOL_SIZE bytes
     // Your implementation here...
+    block_header_t* block = mmap(
+        NULL,
+        (size_t)POOL_SIZE,
+        PROT_READ | PROT_WRITE,
+        MAP_ANONYMOUS | MAP_PRIVATE,
+        -1,
+        0
+    );
+    if (block == MAP_FAILED) {
+        perror("mmap failed");
+        return false;
+    }
+
+    block_header_t* head = (block_header_t*)block;
+    head->size = POOL_SIZE;
+    head->is_free = true;
+    head->next = NULL;
+
+    // memory pool
+    memory_pool = block;
     
     // TODO: Set up the initial free block that spans the entire pool
     // Your implementation here...
+    // initially the entire pool is free
+    free_list = block;
     
+
     return true;  // Return true if initialization was successful
 }
 
@@ -42,10 +65,19 @@ void print_memory_pool_state() {
     printf("Pool address: %p\n", memory_pool);
     printf("Pool size: %d bytes\n", POOL_SIZE);
     
+    printf("\nFree list blocks:\n");
+    printf("-------------------\n");
     // TODO: Print information about the free list
     // Your implementation here...
-    
-    printf("\n");
+    block_header_t* current = free_list;
+    int count = 0;
+    while (current != NULL) {
+        printf("Free block %d:, address=%p, size=%zu\n", count, (void*)current, current->size);
+        printf("Status: %s\n", current->is_free ? "FREE" : "ALLOCATED");
+        printf("\n");
+        current = current->next;
+        count++;
+    }
 }
 
 int main() {

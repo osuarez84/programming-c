@@ -43,7 +43,7 @@ void print_block_header(block_header_t* header) {
     printf("Block Header at %p:\n", (void*)header);
     // Print other fields...
     printf("Size: %zu\n", header->size);
-    printf("Is it free?: %d\n", header->is_free);
+    printf("Is it free?: %s\n", header->is_free ? "FREE" : "ALLOCATED");
     printf("Next free block at address %p\n", header->next);
 }
 
@@ -64,6 +64,10 @@ void demonstrate_block_header_usage() {
         -1,
         0
     );
+    if (mem_block == MAP_FAILED) {
+        perror("mmap failed");
+    }
+
     init_block_header(mem_block, size, true);
 
     // TODO: Print the block header information
@@ -76,6 +80,8 @@ void demonstrate_block_header_usage() {
     printf("2. When it finds a suitable block, it will mark it as 'in use'\n");
     printf("3. When freeing memory, it will find the header and mark it as 'free'\n");
     printf("4. Headers allow the allocator to keep track of all memory blocks\n");
+
+    munmap(mem_block, size);
 }
 
 int main() {
