@@ -71,8 +71,51 @@ void* mem_alloc(size_t size) {
     
     // Hint: Don't forget to account for the header size when allocating
     // Hint: Consider alignment requirements
+
+    block_header_t* current = free_list;
+    block_header_t* new_block = NULL;
+    while (current != NULL) {
+        if (current->size >= size) {
+            if (current->size == size) {
+                new_block = current;
+                new_block->is_free = false;
+            } else if (current->size > size) {
+                // split it
+                // go to the last memory address
+                // then count down using pointer arithmetic to get the new block
+                void* last = (char*)current + current->size;
+                new_block = (block_header_t*)((char*)last - size);
+                // init the new block
+                new_block->size = size;
+                new_block->is_free = false;
+                new_block->next = NULL;
+
+                // set the new size of the current block
+                current->size -= size;
+            }
+
+            // update the free list
+            if (current == NULL) {
+                free_list = current->next;
+            } else {
+                // traverse the free list again from the beginning
+                block_header_t* prev = free_list;
+                // we need the previous element to the current one
+                // so we iterate until the element points to the current
+                while (prev->next != current) {
+                    prev = prev->next;
+                }
+                // point the previous to the next of the current to bypass it
+                prev->next = current->next;
+            }
+
+
+            return new_block;
+        }
+        current = current->next;
+    }
     
-    return NULL;  // Replace with your implementation
+    return new_block; 
 }
 
 // Function to print the state of the memory pool
@@ -105,14 +148,26 @@ void test_mem_alloc() {
     
     // Allocate some memory blocks
     void* ptr1 = mem_alloc(100);
+    if (ptr1 == NULL) {
+        fprintf(stderr, "Can not allocate 100");
+        return;
+    }
     printf("Allocated 100 bytes at %p\n", ptr1);
     print_memory_pool_state();
     
     void* ptr2 = mem_alloc(200);
+    if (ptr2 == NULL) {
+        fprintf(stderr, "Can not allocate 200");
+        return;
+    }
     printf("Allocated 200 bytes at %p\n", ptr2);
     print_memory_pool_state();
     
     void* ptr3 = mem_alloc(300);
+    if (ptr3 == NULL) {
+        fprintf(stderr, "Can not allocate 300");
+        return;
+    }
     printf("Allocated 300 bytes at %p\n", ptr3);
     print_memory_pool_state();
 }
