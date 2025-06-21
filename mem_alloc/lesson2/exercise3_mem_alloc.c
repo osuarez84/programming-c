@@ -72,50 +72,55 @@ void* mem_alloc(size_t size) {
     // Hint: Don't forget to account for the header size when allocating
     // Hint: Consider alignment requirements
 
+    // calculate total size including the header
+    size_t total_size = size + sizeof(block_header_t);
+    // align to 8 bytes
+    total_size = (total_size + 7) & ~7;
+
     block_header_t* current = free_list;
-    block_header_t* new_block = NULL;
+    block_header_t* prev = NULL;
     while (current != NULL) {
-        if (current->size >= size) {
-            if (current->size == size) {
-                new_block = current;
-                new_block->is_free = false;
-            } else if (current->size > size) {
+        if (current->size >= total_size) {
+            // if there is space enough in the block or if the remaining size would be too small, use the entire block
+            // sizeof(block_header_t) + 8 -> is the minimum usable memory block: header + 8 bytes
+            // if this is what remains in the current block after split then use the current block instead of the split
+            if (current->size == total_size || current->size - total_size <= sizeof(block_header_t) + 8) {
+                current->is_free = false;
+
+                // remove from free list
+                if (prev == NULL) {
+                    free_list = current->next;
+                } else {
+                    prev->next = current->next;
+                }
+                current->next = NULL; //not in free list anymore
+                return get_usable_memory(current);                
+
+            } else if (current->size > total_size) {
                 // split it
                 // go to the last memory address
                 // then count down using pointer arithmetic to get the new block
                 void* last = (char*)current + current->size;
-                new_block = (block_header_t*)((char*)last - size);
+                block_header_t* new_block = (block_header_t*)((char*)last - total_size);
                 // init the new block
-                new_block->size = size;
+                new_block->size = total_size;
                 new_block->is_free = false;
-                new_block->next = NULL;
+                new_block->next = NULL; // not in free list
 
                 // set the new size of the current block
-                current->size -= size;
+                current->size -= total_size;
+
+                // current block stays in free list, no need to update pointers
+
+                return get_usable_memory(new_block);
             }
-
-            // update the free list
-            if (current == NULL) {
-                free_list = current->next;
-            } else {
-                // traverse the free list again from the beginning
-                block_header_t* prev = free_list;
-                // we need the previous element to the current one
-                // so we iterate until the element points to the current
-                while (prev->next != current) {
-                    prev = prev->next;
-                }
-                // point the previous to the next of the current to bypass it
-                prev->next = current->next;
-            }
-
-
-            return new_block;
         }
+        prev = current;
         current = current->next;
     }
     
-    return new_block; 
+    // not suitable block found
+    return NULL; 
 }
 
 // Function to print the state of the memory pool
