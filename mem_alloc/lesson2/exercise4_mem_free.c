@@ -119,6 +119,41 @@ void mem_free(void* ptr) {
     
     // Hint: Use get_block_header() to find the header
     // Hint: Consider where in the free list to insert this block
+
+    // check if ptr is valid
+    if (ptr == NULL) return;
+
+    block_header_t* header = get_block_header(ptr);
+
+    // if the block is already free then do nothing
+    if (header->is_free) {
+        printf("Warning: double free detected\n");
+        return;
+    }
+    
+    header->is_free = true;
+
+    // insert the block at the end of the free list
+    block_header_t* current = free_list;
+    block_header_t* prev = NULL;
+
+    // if free list is empty
+    if (current == NULL) {
+        free_list = header;
+        header->next = NULL;
+        return;
+    }
+
+    // if free list not empty then iterate through the blocks
+    while (current != NULL) {
+        prev = current;
+        current = current->next;
+    }
+    prev->next = header;
+    header->next = NULL;
+
+    // TODO
+    // coalesce free blocks
 }
 
 // Function to print the state of the memory pool
